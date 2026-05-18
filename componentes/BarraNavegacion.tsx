@@ -49,12 +49,19 @@ export const BarraNavegacion = () => {
         <div className="flex items-center gap-3">
           {usuario ? (
             <>
-              <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700">
+              <Link
+                to="/perfil"
+                className={`hidden md:flex items-center gap-3 px-4 py-2 rounded-xl border transition-all ${
+                  EsActivo('/perfil')
+                    ? 'bg-emerald-500/10 border-emerald-500/40'
+                    : 'bg-slate-800 border-slate-700 hover:border-emerald-500/40 hover:bg-slate-800/80'
+                }`}
+              >
                 <div className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-[10px] font-black text-slate-900">
                   {usuario.nombre[0].toUpperCase()}
                 </div>
                 <span className="text-xs font-bold text-slate-200">{usuario.nombre}</span>
-              </div>
+              </Link>
               <button
                 onClick={cerrarSesion}
                 className="hidden sm:inline text-xs font-bold text-red-500 hover:underline uppercase tracking-widest"
@@ -133,15 +140,31 @@ export const BarraNavegacion = () => {
               </div>
             )}
             {usuario && (
-              <button
-                onClick={() => {
-                  cerrarSesion();
-                  setMenuAbierto(false);
-                }}
-                className="w-full mt-4 pt-4 border-t border-slate-700 text-sm font-bold text-red-500 uppercase tracking-widest"
-              >
-                Cerrar sesión
-              </button>
+              <>
+                <Link
+                  to="/perfil"
+                  onClick={() => setMenuAbierto(false)}
+                  className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-bold uppercase tracking-widest ${
+                    EsActivo('/perfil')
+                      ? 'bg-emerald-500/10 text-emerald-400'
+                      : 'text-slate-300'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-xs font-black text-slate-900">
+                    {usuario.nombre[0].toUpperCase()}
+                  </div>
+                  Mi perfil — {usuario.nombre}
+                </Link>
+                <button
+                  onClick={() => {
+                    cerrarSesion();
+                    setMenuAbierto(false);
+                  }}
+                  className="w-full pt-4 border-t border-slate-700 text-sm font-bold text-red-500 uppercase tracking-widest"
+                >
+                  Cerrar sesión
+                </button>
+              </>
             )}
           </div>
         </div>

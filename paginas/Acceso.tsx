@@ -4,6 +4,8 @@ import { LogIn, Droplets, ShieldCheck, MapPin, Camera, ArrowRight } from 'lucide
 import { usarAuth } from '../contextos/ContextoAuth';
 import { ServicioAuth } from '../servicios/ServicioAuth';
 import { motion } from 'motion/react';
+import { BotonVolver } from '../componentes/BotonVolver';
+import { CampoContrasena } from '../componentes/CampoContrasena';
 
 const beneficios = [
   { icono: Camera, texto: 'Reporta con foto y ubicación GPS' },
@@ -77,6 +79,8 @@ export default function Acceso() {
 
         {/* Panel derecho — formulario */}
         <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
+          <BotonVolver className="mb-6" />
+
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
               <Droplets className="h-6 w-6 text-slate-950" />
@@ -114,13 +118,11 @@ export default function Acceso() {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium mb-1.5 text-slate-300">Contraseña</label>
-                <input
-                  type="password"
+                <CampoContrasena
                   required
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full input-field rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/50 focus:outline-none transition-shadow"
                   placeholder="••••••••"
                 />
               </div>

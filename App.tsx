@@ -10,6 +10,7 @@ import Registro from './paginas/Registro';
 import NuevoReporte from './paginas/NuevoReporte';
 import PanelIoT from './paginas/PanelIoT';
 import ReportesCiudadanos from './paginas/ReportesCiudadanos';
+import Perfil from './paginas/Perfil';
 
 const PantallaCarga = () => (
   <div className="min-h-screen flex flex-col items-center justify-center gap-4">
@@ -48,6 +49,7 @@ const LayoutApp = () => {
           <Route path="/" element={<Inicio />} />
           <Route path="/panel" element={<PanelIoT />} />
           <Route path="/reportar" element={<RutaPrivada><NuevoReporte /></RutaPrivada>} />
+          <Route path="/perfil" element={<RutaPrivada><Perfil /></RutaPrivada>} />
           <Route path="/reportes-ciudadanos" element={<ReportesCiudadanos />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
