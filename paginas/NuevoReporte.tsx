@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { usarTema } from '../contextos/ContextoTema';
 import { urlCapaMapa } from '../utilidades/estilosTema';
+import { ServicioGroq } from '../servicios/ServicioGroq';
 
 const customIcon = new Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -45,42 +46,67 @@ export default function NuevoReporte() {
   const [severidad, setSeveridad] = useState<'Leve' | 'Moderado' | 'Grave'>('Moderado');
   const [enviado, setEnviado] = useState(false);
   const [paso, setPaso] = useState(1);
+  const [mensajeIA, setMensajeIA] = useState('');
+  const [cargandoIA, setCargandoIA] = useState(false);
 
-  const manejarEnvio = (e: React.FormEvent) => {
+  const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     ServicioBdLocal.guardarReporte({
       descripcion: `[${categoria}] ${descripcion}`,
       latitud: posicion.lat,
       longitud: posicion.lng,
       severidad,
-      autorId: usuario?.id || 'anonimo'
+      autorId: usuario?.id || 'anonimo',
     });
     setEnviado(true);
-    setTimeout(() => navigate('/panel'), 2500);
+    setCargandoIA(true);
+    const { texto } = await ServicioGroq.evaluarReporte(
+      categoria,
+      descripcion,
+      severidad,
+      posicion.lat,
+      posicion.lng
+    );
+    setMensajeIA(texto);
+    setCargandoIA(false);
+    setTimeout(() => navigate('/panel'), 4000);
   };
 
   if (enviado) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-gray-50 dark:bg-slate-950">
-        <motion.div 
-          initial={{ scale: 0 }} animate={{ scale: 1 }}
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
           className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mb-8 shadow-2xl shadow-emerald-500/20"
         >
           <CheckCircle2 className="h-12 w-12 text-white" />
         </motion.div>
-        <h2 className="text-4xl font-heading font-bold mb-4 text-gray-900 dark:text-white">¡Su Voz cuenta!</h2>
-        <p className="text-gray-500 dark:text-slate-400 max-w-md text-lg">
-          El reporte ha sido digitalizado y enviado al comando de emergencias de Popayán.
+        <h2 className="text-4xl font-heading font-bold mb-4 text-gray-900 dark:text-white">¡Su voz cuenta!</h2>
+        <p className="text-gray-500 dark:text-slate-400 max-w-md text-lg mb-6">
+          El reporte fue enviado al comando de emergencias de Popayán.
         </p>
-        <motion.div 
-          className="mt-12 w-16 h-1.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        <div className="max-w-lg card-premium rounded-2xl p-5 text-left border border-emerald-500/20 mb-8">
+          <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-widest mb-2">
+            Análisis Groq
+          </p>
+          {cargandoIA ? (
+            <p className="text-sm text-gray-500 dark:text-slate-400 italic">Generando recomendación…</p>
+          ) : (
+            <p className="text-sm text-gray-700 dark:text-slate-300 italic leading-relaxed">&ldquo;{mensajeIA}&rdquo;</p>
+          )}
+        </div>
+        <motion.div
+          className="w-16 h-1.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
         >
-           <motion.div 
+          <motion.div
             className="h-full bg-primary-500"
-            initial={{ width: 0 }} animate={{ width: '100%' }}
-            transition={{ duration: 2.5 }}
-           />
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 4 }}
+          />
         </motion.div>
       </div>
     );

@@ -129,7 +129,12 @@ export default function PanelIoT() {
         
         {/* Lado Izquierdo - Status y Usuarios */}
         <div className="lg:col-span-3 space-y-6">
-           <AnalisisIA sensores={sensores} />
+           <AnalisisIA
+             sensores={sensores}
+             clima={clima}
+             reportes={reportes}
+             modoTormenta={modoTormenta}
+           />
 
            <div className="card-premium rounded-3xl p-6">
               <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-6">Estado de Salud de Red</h3>

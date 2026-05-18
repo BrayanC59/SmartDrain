@@ -1,24 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Sparkles, Activity, ShieldAlert, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SensorIoT } from '../tipos';
+import { DatosClima, Reporte, SensorIoT } from '../tipos';
 import { ServicioGroq } from '../servicios/ServicioGroq';
 
 interface Props {
   sensores: SensorIoT[];
+  clima?: DatosClima | null;
+  reportes?: Reporte[];
+  modoTormenta?: boolean;
 }
 
-export const AnalisisIA: React.FC<Props> = ({ sensores }) => {
+export const AnalisisIA: React.FC<Props> = ({
+  sensores,
+  clima = null,
+  reportes = [],
+  modoTormenta = false,
+}) => {
   const [insight, setInsight] = useState('');
   const [cargando, setCargando] = useState(true);
   const [origen, setOrigen] = useState<'groq' | 'local'>('local');
   const ultimaPeticion = useRef(0);
 
+  const contexto = useMemo(
+    () => ({ sensores, clima, reportes, modoTormenta }),
+    [sensores, clima, reportes, modoTormenta]
+  );
+
+  const firmaContexto = useMemo(
+    () =>
+      JSON.stringify({
+        s: sensores.map((x) => `${x.id}:${x.nivelAgua}:${x.estado}`),
+        c: clima,
+        r: reportes.length,
+        t: modoTormenta,
+      }),
+    [sensores, clima, reportes.length, modoTormenta]
+  );
+
   useEffect(() => {
     const idPeticion = ++ultimaPeticion.current;
     setCargando(true);
 
-    ServicioGroq.analizarRed(sensores).then(({ texto, origen: fuente }) => {
+    ServicioGroq.analizarRed(contexto).then(({ texto, origen: fuente }) => {
       if (idPeticion !== ultimaPeticion.current) return;
       setInsight(texto);
       setOrigen(fuente);
@@ -28,7 +52,7 @@ export const AnalisisIA: React.FC<Props> = ({ sensores }) => {
     return () => {
       ultimaPeticion.current++;
     };
-  }, [sensores]);
+  }, [firmaContexto, contexto]);
 
   const criticos = sensores.filter((s) => s.estado === 'Critico').length;
   const alertas = sensores.filter((s) => s.estado === 'Alerta').length;
@@ -65,7 +89,9 @@ export const AnalisisIA: React.FC<Props> = ({ sensores }) => {
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
-            <span className="text-xs text-emerald-500 font-mono">Analizando telemetría...</span>
+            <span className="text-xs text-emerald-500 font-mono">
+              {ServicioGroq.estaConfigurado() ? 'Consultando Groq…' : 'Analizando telemetría…'}
+            </span>
           </motion.div>
         ) : (
           <motion.div
@@ -90,6 +116,11 @@ export const AnalisisIA: React.FC<Props> = ({ sensores }) => {
                   Alertas: {alertas} · Críticos: {criticos}
                 </span>
               </div>
+              {reportes.length > 0 && (
+                <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase">
+                  Reportes: {reportes.length}
+                </span>
+              )}
             </div>
           </motion.div>
         )}
