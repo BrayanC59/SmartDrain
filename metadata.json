@@ -1,0 +1,7 @@
+{
+  "name": "SmartDrain Popayán",
+  "description": "Plataforma web de monitoreo IoT y reporte ciudadano para la gestión de alcantarillado en Popayán.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
